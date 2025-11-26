@@ -738,4 +738,543 @@
         <input
           id="rehabLocationInput"
           type="text"
-          placeholder="Example
+          placeholder="Example: Frederick, MD 21701"
+        />
+
+        <div class="btn-row">
+          <button class="btn primary" id="rehabNearMeBtn">🏥 Rehabs near me</button>
+          <button class="btn ghost" id="rehabByLocationBtn">🔎 Rehabs in typed location</button>
+        </div>
+
+        <p class="muted" style="margin-top:0.7rem;">
+          You can also search directly for treatment hotlines or specific rehabs you trust.
+          When in doubt, reach out to a sponsor, trusted friend, or professional.
+        </p>
+
+        <h3 style="font-size:0.95rem;margin:0.9rem 0 0.4rem;">Just need someone to talk to?</h3>
+        <p class="muted" style="margin-bottom:0.5rem;">
+          You might:
+        </p>
+        <ul class="muted" style="font-size:0.85rem;margin-top:0;">
+          <li>Call your sponsor or a friend from the Phone Book tab.</li>
+          <li>Call / text 988 to talk about any kind of emotional crisis.</li>
+          <li>Call 211 (in many U.S. areas) for local resources and support.</li>
+        </ul>
+
+        <div class="btn-row">
+          <a class="btn accent" href="tel:211">
+            ☎️ Call 211 (local resources)
+          </a>
+        </div>
+      </section>
+
+      <!-- Readings & Literature -->
+      <section class="card section" id="readings">
+        <h2>
+          <span>📚 Daily Readings & Literature</span>
+          <span class="badge">Links to official texts</span>
+        </h2>
+
+        <p class="muted" style="margin-bottom:0.7rem;">
+          These are simple daily prompts plus links to official 12-step literature so you can read
+          from the Big Book, Basic Text, and more without carrying all the books with you.
+        </p>
+
+        <div class="reading-card" id="dailyReading">
+          <h3>Today’s simple reading</h3>
+          <p id="dailyReadingText">
+            “One day at a time.”  
+            Today, focus on doing the next right thing. You don’t have to fix your whole life,
+            just this one moment in front of you.
+          </p>
+          <p class="muted" id="dailyReadingTagline" style="margin:0;">
+            Refresh the page for a different short reflection.
+          </p>
+        </div>
+
+        <h3 style="font-size:0.95rem;margin:0.8rem 0 0.4rem;">Official literature (external links)</h3>
+        <p class="muted" style="margin-bottom:0.4rem;">
+          These links go to official or widely-used sites that host or sell 12-step literature:
+        </p>
+
+        <ul class="link-list">
+          <li>
+            📖 <strong>AA literature & Big Book</strong> – 
+            <a href="https://www.aa.org/" target="_blank" rel="noopener noreferrer">
+              Visit AA.org
+            </a>
+          </li>
+          <li>
+            📘 <strong>NA literature & Basic Text</strong> – 
+            <a href="https://na.org/" target="_blank" rel="noopener noreferrer">
+              Visit NA.org
+            </a>
+          </li>
+          <li>
+            📗 <strong>CA literature</strong> – 
+            <a href="https://ca.org/" target="_blank" rel="noopener noreferrer">
+              Visit CA.org
+            </a>
+          </li>
+          <li>
+            📚 <strong>Other 12-step texts</strong> – search for your fellowship (Al-Anon, etc.)
+            plus “literature” to find official sites.
+          </li>
+        </ul>
+
+        <h3 style="font-size:0.95rem;margin:1rem 0 0.4rem;">Your own favorite passages</h3>
+        <p class="muted" style="margin-bottom:0.4rem;">
+          Use this box to paste your own favorite passages, prayers, or affirmations (that you’re
+          allowed to copy). They will stay on this device.
+        </p>
+
+        <label for="customReadings">Personal readings & prayers</label>
+        <textarea
+          id="customReadings"
+          placeholder="Add your favorite lines here. Example: a personal version of the serenity prayer, slogans that help you, or things your sponsor shared."
+        ></textarea>
+        <div class="btn-row">
+          <button class="btn primary" id="saveCustomReadingsBtn">💾 Save my readings</button>
+        </div>
+        <p class="muted" id="customReadingsStatus"></p>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    My Recovery Buddy is for support only and does not replace medical, mental health, or emergency services.
+    If you are in immediate danger, call 911 (or your local emergency number).
+  </footer>
+
+  <script>
+    // ----- Storage helpers -----
+    const storageKeys = {
+      meetings: "twelve_step_meetings_v1",
+      contacts: "twelve_step_contacts_v1",
+      customReadings: "twelve_step_custom_readings_v1",
+      activeMeeting: "twelve_step_active_meeting_v1",
+    };
+
+    function loadFromStorage(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        return JSON.parse(raw);
+      } catch (e) {
+        console.error("Storage load error", e);
+        return fallback;
+      }
+    }
+
+    function saveToStorage(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (e) {
+        console.error("Storage save error", e);
+      }
+    }
+
+    // ----- Navigation -----
+    const navButtons = document.querySelectorAll("nav button");
+    const sections = document.querySelectorAll(".section");
+
+    navButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const sectionId = btn.dataset.section;
+        navButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        sections.forEach((section) => {
+          section.classList.toggle("active", section.id === sectionId);
+        });
+      });
+    });
+
+    // ----- Daily reading randomizer -----
+    const readings = [
+      "“One day at a time.” Today, focus on doing the next right thing. You don’t have to fix your whole life—just this one moment.",
+      "“Easy does it.” You don’t have to force recovery. Show up, be honest, and let the process work on you.",
+      "“Keep coming back.” Even if you slipped, you can start again right now. The fact that you care enough to try matters.",
+      "“Progress, not perfection.” Recovery is about growing a little at a time, not becoming flawless.",
+      "“We don’t recover alone.” Reach out. Let other people walk with you. Isolation is where the disease wins.",
+      "“Just for today.” You can stay clean / sober today. Tomorrow hasn’t happened yet, and yesterday is already done.",
+    ];
+    const readingEl = document.getElementById("dailyReadingText");
+    if (readingEl) {
+      const index = Math.floor(Math.random() * readings.length);
+      readingEl.textContent = readings[index];
+    }
+
+    // ----- Meeting Finder (search only) -----
+    const meetingLocationInput = document.getElementById("meetingLocationInput");
+
+    function openMeetingSearch(fellowship) {
+      const textLocation = meetingLocationInput
+        ? meetingLocationInput.value.trim()
+        : "";
+      const baseTerm =
+        fellowship === "12-step"
+          ? "12 step meetings"
+          : fellowship + " meetings";
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            const query = encodeURIComponent(baseTerm);
+            const url = `https://www.google.com/maps/search/${query}/@${latitude},${longitude},13z`;
+            window.open(url, "_blank");
+          },
+          () => {
+            const locQuery = textLocation ? " in " + textLocation : "";
+            const url = `https://www.google.com/maps/search/${encodeURIComponent(
+              baseTerm + locQuery
+            )}`;
+            window.open(url, "_blank");
+          }
+        );
+      } else {
+        const locQuery = textLocation ? " in " + textLocation : "";
+        const url = `https://www.google.com/maps/search/${encodeURIComponent(
+          baseTerm + locQuery
+        )}`;
+        window.open(url, "_blank");
+      }
+    }
+
+    document.querySelectorAll("[data-meeting-search]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const fellowship = btn.dataset.meetingSearch;
+        openMeetingSearch(fellowship);
+      });
+    });
+
+    // ----- Meeting Log & Check-in -----
+    const checkInBtn = document.getElementById("checkInBtn");
+    const checkOutBtn = document.getElementById("checkOutBtn");
+    const currentMeetingStatus = document.getElementById("currentMeetingStatus");
+    const meetingProgramSelect = document.getElementById("meetingProgram");
+    const meetingNameInput = document.getElementById("meetingName");
+
+    let meetings = loadFromStorage(storageKeys.meetings, []);
+    let activeMeeting = loadFromStorage(storageKeys.activeMeeting, null);
+
+    function renderCurrentMeetingStatus() {
+      if (!currentMeetingStatus) return;
+      if (!activeMeeting) {
+        currentMeetingStatus.textContent =
+          "No active meeting yet. Check in when you arrive.";
+        return;
+      }
+      const started = new Date(activeMeeting.startTime).toLocaleString();
+      currentMeetingStatus.textContent = `Checked in to ${
+        activeMeeting.program
+      } at “${activeMeeting.name || "Unnamed meeting"}” on ${started}.`;
+    }
+
+    function renderMeetingsList() {
+      const list = document.getElementById("meetingsList");
+      const empty = document.getElementById("meetingsEmptyState");
+      if (!list || !empty) return;
+
+      list.innerHTML = "";
+      if (!meetings.length) {
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+
+      const sorted = [...meetings].sort(
+        (a, b) => new Date(b.startTime) - new Date(a.startTime)
+      );
+
+      sorted.forEach((m) => {
+        const item = document.createElement("div");
+        item.className = "meeting-item";
+
+        const header = document.createElement("div");
+        header.className = "meeting-header";
+
+        const title = document.createElement("div");
+        title.className = "meeting-title";
+        title.textContent = m.name || "(No meeting name)";
+        header.appendChild(title);
+
+        const tag = document.createElement("span");
+        tag.className =
+          "tag program-" +
+          (m.program === "AA" || m.program === "NA" || m.program === "CA"
+            ? m.program
+            : "");
+        tag.textContent = m.program;
+        header.appendChild(tag);
+
+        const details = document.createElement("div");
+        details.className = "small-stack";
+        const start = new Date(m.startTime).toLocaleString();
+        details.textContent = `Checked in: ${start}`;
+
+        if (m.endTime) {
+          const end = new Date(m.endTime).toLocaleString();
+          const endSpan = document.createElement("span");
+          endSpan.textContent = `• Checked out: ${end}`;
+          details.appendChild(endSpan);
+        } else {
+          const activeSpan = document.createElement("span");
+          activeSpan.textContent = "• Still active (no checkout logged)";
+          details.appendChild(activeSpan);
+        }
+
+        const noteSnippet = document.createElement("div");
+        noteSnippet.className = "note-snippet";
+        noteSnippet.textContent = m.notes
+          ? m.notes.length > 120
+            ? m.notes.slice(0, 120) + "..."
+            : m.notes
+          : "No notes yet.";
+
+        const noteTextarea = document.createElement("textarea");
+        noteTextarea.value = m.notes || "";
+        noteTextarea.placeholder =
+          "Notes from this meeting (what you heard, how you felt, anything you want to remember)…";
+
+        const saveNoteBtn = document.createElement("button");
+        saveNoteBtn.className = "btn small primary";
+        saveNoteBtn.textContent = "💾 Save notes";
+        saveNoteBtn.addEventListener("click", () => {
+          m.notes = noteTextarea.value.trim();
+          saveToStorage(storageKeys.meetings, meetings);
+          renderMeetingsList();
+        });
+
+        item.appendChild(header);
+        item.appendChild(details);
+        item.appendChild(noteSnippet);
+        item.appendChild(noteTextarea);
+        const btnRow = document.createElement("div");
+        btnRow.className = "btn-row";
+        btnRow.appendChild(saveNoteBtn);
+        item.appendChild(btnRow);
+
+        list.appendChild(item);
+      });
+    }
+
+    checkInBtn?.addEventListener("click", () => {
+      const program = meetingProgramSelect.value;
+      const name = meetingNameInput.value.trim();
+      const now = new Date();
+      const meeting = {
+        id: "m_" + now.getTime(),
+        program,
+        name,
+        startTime: now.toISOString(),
+        endTime: null,
+        notes: "",
+      };
+      meetings.push(meeting);
+      activeMeeting = meeting;
+      saveToStorage(storageKeys.meetings, meetings);
+      saveToStorage(storageKeys.activeMeeting, activeMeeting);
+      renderCurrentMeetingStatus();
+      renderMeetingsList();
+      alert("Checked in. You can add notes below in your meeting log.");
+    });
+
+    checkOutBtn?.addEventListener("click", () => {
+      if (!activeMeeting) {
+        alert("No active meeting to check out of.");
+        return;
+      }
+      const now = new Date().toISOString();
+      const idx = meetings.findIndex((m) => m.id === activeMeeting.id);
+      if (idx !== -1) {
+        meetings[idx].endTime = now;
+      }
+      activeMeeting = null;
+      saveToStorage(storageKeys.meetings, meetings);
+      saveToStorage(storageKeys.activeMeeting, activeMeeting);
+      renderCurrentMeetingStatus();
+      renderMeetingsList();
+      alert("Checked out. Your meeting log has been updated.");
+    });
+
+    // ----- Contacts (Phone Book) -----
+    const contactNameInput = document.getElementById("contactName");
+    const contactProgramSelect = document.getElementById("contactProgram");
+    const contactPhoneInput = document.getElementById("contactPhone");
+    const contactNotesInput = document.getElementById("contactNotes");
+    const saveContactBtn = document.getElementById("saveContactBtn");
+    const contactFilter = document.getElementById("contactFilter");
+    const contactsList = document.getElementById("contactsList");
+    const contactsEmptyState = document.getElementById("contactsEmptyState");
+
+    let contacts = loadFromStorage(storageKeys.contacts, []);
+
+    function renderContacts() {
+      if (!contactsList || !contactsEmptyState) return;
+
+      contactsList.innerHTML = "";
+      const filter = contactFilter.value;
+      const filtered =
+        filter === "all"
+          ? contacts
+          : contacts.filter((c) => c.program === filter);
+
+      if (!filtered.length) {
+        contactsEmptyState.style.display = "block";
+        return;
+      }
+      contactsEmptyState.style.display = "none";
+
+      const sorted = [...filtered].sort((a, b) =>
+        (a.name || "").localeCompare(b.name || "")
+      );
+
+      sorted.forEach((c) => {
+        const item = document.createElement("div");
+        item.className = "contact-item";
+
+        const header = document.createElement("div");
+        header.className = "contact-header";
+
+        const nameEl = document.createElement("div");
+        nameEl.textContent = c.name || "(No name)";
+        nameEl.style.fontWeight = "600";
+        nameEl.style.fontSize = "0.9rem";
+        header.appendChild(nameEl);
+
+        const rightSide = document.createElement("div");
+        rightSide.className = "small-stack";
+        rightSide.textContent = c.program;
+        header.appendChild(rightSide);
+
+        const phoneEl = document.createElement("div");
+        phoneEl.className = "small-stack";
+        phoneEl.textContent = c.phone || "No phone saved";
+
+        const notesEl = document.createElement("div");
+        notesEl.className = "note-snippet";
+        notesEl.textContent = c.notes
+          ? c.notes.length > 120
+            ? c.notes.slice(0, 120) + "..."
+            : c.notes
+          : "No notes.";
+
+        item.appendChild(header);
+        item.appendChild(phoneEl);
+        item.appendChild(notesEl);
+        contactsList.appendChild(item);
+      });
+    }
+
+    saveContactBtn?.addEventListener("click", () => {
+      const name = contactNameInput.value.trim();
+      const program = contactProgramSelect.value;
+      const phone = contactPhoneInput.value.trim();
+      const notes = contactNotesInput.value.trim();
+
+      if (!name && !phone) {
+        alert("Please enter at least a name or a phone number.");
+        return;
+      }
+
+      const now = new Date().toISOString();
+      contacts.push({
+        id: "c_" + now,
+        name,
+        program,
+        phone,
+        notes,
+      });
+      saveToStorage(storageKeys.contacts, contacts);
+
+      contactNameInput.value = "";
+      contactPhoneInput.value = "";
+      contactNotesInput.value = "";
+
+      renderContacts();
+    });
+
+    contactFilter?.addEventListener("change", renderContacts);
+
+    // ----- Rehab search -----
+    const rehabLocationInput = document.getElementById("rehabLocationInput");
+    const rehabNearMeBtn = document.getElementById("rehabNearMeBtn");
+    const rehabByLocationBtn = document.getElementById("rehabByLocationBtn");
+
+    function openRehabSearchNearMe() {
+      const baseTerm = "substance use treatment center";
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            const url = `https://www.google.com/maps/search/${encodeURIComponent(
+              baseTerm
+            )}/@${latitude},${longitude},13z`;
+            window.open(url, "_blank");
+          },
+          () => {
+            const url = `https://www.google.com/maps/search/${encodeURIComponent(
+              baseTerm + " near me"
+            )}`;
+            window.open(url, "_blank");
+          }
+        );
+      } else {
+        const url = `https://www.google.com/maps/search/${encodeURIComponent(
+          baseTerm + " near me"
+        )}`;
+        window.open(url, "_blank");
+      }
+    }
+
+    function openRehabSearchByLocation() {
+      const textLocation = rehabLocationInput.value.trim();
+      if (!textLocation) {
+        alert("Please type a city, ZIP, or area first.");
+        return;
+      }
+      const baseTerm = "substance use treatment center";
+      const url = `https://www.google.com/maps/search/${encodeURIComponent(
+        baseTerm + " in " + textLocation
+      )}`;
+      window.open(url, "_blank");
+    }
+
+    rehabNearMeBtn?.addEventListener("click", openRehabSearchNearMe);
+    rehabByLocationBtn?.addEventListener("click", openRehabSearchByLocation);
+
+    // ----- Custom readings -----
+    const customReadingsTextarea = document.getElementById("customReadings");
+    const saveCustomReadingsBtn = document.getElementById(
+      "saveCustomReadingsBtn"
+    );
+    const customReadingsStatus = document.getElementById(
+      "customReadingsStatus"
+    );
+
+    const customReadings = loadFromStorage(storageKeys.customReadings, "");
+    if (customReadingsTextarea) {
+      customReadingsTextarea.value = customReadings;
+    }
+
+    saveCustomReadingsBtn?.addEventListener("click", () => {
+      const text = customReadingsTextarea.value;
+      saveToStorage(storageKeys.customReadings, text);
+      if (customReadingsStatus) {
+        customReadingsStatus.textContent =
+          "Personal readings saved on this device.";
+        setTimeout(() => {
+          customReadingsStatus.textContent = "";
+        }, 2500);
+      }
+    });
+
+    // ----- Initial render -----
+    renderCurrentMeetingStatus();
+    renderMeetingsList();
+    renderContacts();
+  </script>
+</body>
+</html>
