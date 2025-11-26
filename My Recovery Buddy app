@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Recovery Buddy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      /* Purples + white */
+      --bg: #070017;
+      --bg-card: #0b001f;
+      --bg-soft: #140032;
+      --primary: #a855f7;           /* bright recovery purple */
+      --primary-soft: rgba(168, 85, 247, 0.15);
+      --text: #f9fafb;              /* near-white */
+      --muted: #c4b5fd;             /* soft lavender */
+      --border: #312e81;            /* deep indigo */
+      --danger: #f97373;
+      --accent: #e5e7eb;            /* light neutral for links/buttons */
+      --radius-lg: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background:
+        radial-gradient(circle at top, #4c1d95 0, #070017 55%, #030010 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(12px);
+      background: linear-gradient(
+        to right,
+        rgba(24, 0, 60, 0.95),
+        rgba(76, 29, 149, 0.65)
+      );
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    header h1 span.logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: radial-gradient(circle at top left, #a855f7, #6d28d9);
+      font-weight: 700;
+      font-size: 1rem;
+      color: #f9fafb;
+    }
+
+    header small {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    main {
+      flex: 1;
+      padding: 1.5rem;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto 3rem;
+    }
+
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 820px) {
+      .grid-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: radial-gradient(
+        circle at top left,
+        #140032,
+        #050014
+      );
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(55, 48, 163, 0.95);
+      padding: 1.3rem;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+    }
+
+    .card h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card h2 span.badge {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(165, 180, 252, 0.6);
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.2);
+    }
+
+    nav button {
+      width: 100%;
+      text-align: left;
+      padding: 0.65rem 0.8rem;
+      margin-bottom: 0.35rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.7rem;
+      transition: all 0.15s ease;
+    }
+
+    nav button span.label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    nav button span.icon {
+      font-size: 1.05rem;
+    }
+
+    nav button span.chevron {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    nav button.active {
+      background: radial-gradient(
+        circle at top left,
+        rgba(168, 85, 247, 0.25),
+        rgba(15, 23, 42, 0.95)
+      );
+      border-color: rgba(196, 181, 253, 0.9);
+      box-shadow: 0 0 0 1px rgba(196, 181, 253, 0.6);
+    }
+
+    nav button:hover {
+      border-color: rgba(196, 181, 253, 0.8);
+      transform: translateY(-1px);
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .pill {
+      padding: 0.2rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid rgba(165, 180, 252, 0.5);
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.3);
+      cursor: default;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.5rem 0.6rem;
+      border-radius: 0.6rem;
+      border: 1px solid var(--border);
+      background: rgba(17, 24, 39, 0.95);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      margin-bottom: 0.8rem;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: rgba(168, 85, 247, 0.9);
+      box-shadow: 0 0 0 1px rgba(196, 181, 253, 0.5);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .btn {
+      padding: 0.45rem 0.95rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(17, 24, 39, 0.9);
+      color: var(--text);
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #a855f7, #c4b5fd);
+      border-color: #a855f7;
+      color: #050016;
+      font-weight: 600;
+    }
+
+    .btn.ghost {
+      background: transparent;
+    }
+
+    .btn.danger {
+      background: linear-gradient(135deg, #f97373, #fecaca);
+      border-color: #f97373;
+      color: #111827;
+      font-weight: 600;
+    }
+
+    .btn.accent {
+      background: linear-gradient(135deg, #e5e7eb, #f9fafb);
+      border-color: #e5e7eb;
+      color: #111827;
+      font-weight: 600;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.75);
+    }
+
+    .btn.small {
+      padding: 0.35rem 0.7rem;
+      font-size: 0.8rem;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      border: 1px solid rgba(165, 180, 252, 0.6);
+      font-size: 0.7rem;
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.4);
+    }
+
+    .tag.program-AA {
+      border-color: rgba(129, 140, 248, 0.95);
+      color: #e0e7ff;
+    }
+    .tag.program-NA {
+      border-color: rgba(96, 165, 250, 0.9);
+      color: #dbeafe;
+    }
+    .tag.program-CA {
+      border-color: rgba(244, 114, 182, 0.9);
+      color: #f9a8d4;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .meeting-list, .contacts-list {
+      border-top: 1px solid var(--border);
+      margin-top: 0.8rem;
+      padding-top: 0.6rem;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    .meeting-item, .contact-item {
+      padding: 0.55rem 0.4rem;
+      border-radius: 0.8rem;
+      border: 1px solid rgba(55, 48, 163, 0.95);
+      background: rgba(15, 23, 42, 0.97);
+      margin-bottom: 0.5rem;
+    }
+
+    .meeting-header, .contact-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .meeting-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .small-stack {
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .note-snippet {
+      font-size: 0.8rem;
+      margin-top: 0.25rem;
+      color: #e5e7eb;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .chip {
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(165, 180, 252, 0.6);
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: rgba(17, 24, 39, 0.7);
+    }
+
+    .reading-card {
+      padding: 0.7rem 0.8rem;
+      border-radius: 0.9rem;
+      border: 1px dashed rgba(196, 181, 253, 0.8);
+      background: radial-gradient(
+        circle at top left,
+        rgba(168, 85, 247, 0.22),
+        rgba(12, 10, 36, 0.98)
+      );
+      margin-bottom: 0.8rem;
+    }
+
+    .reading-card h3 {
+      font-size: 0.9rem;
+      margin: 0 0 0.3rem;
+    }
+
+    .reading-card p {
+      font-size: 0.85rem;
+      margin: 0 0 0.3rem;
+      color: #f3e8ff;
+    }
+
+    .link-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.4rem 0 0;
+      font-size: 0.85rem;
+    }
+
+    .link-list li {
+      margin-bottom: 0.3rem;
+    }
+
+    .link-list a {
+      color: #e5e7eb;
+      text-decoration: underline;
+    }
+
+    .link-list a:hover {
+      opacity: 0.9;
+    }
+
+    .alert {
+      border-radius: 0.85rem;
+      padding: 0.7rem 0.8rem;
+      font-size: 0.8rem;
+      margin-bottom: 0.8rem;
+      border: 1px solid rgba(248, 113, 113, 0.9);
+      background: radial-gradient(
+        circle at top left,
+        rgba(248, 113, 113, 0.18),
+        rgba(17, 24, 39, 0.98)
+      );
+      color: #fee2e2;
+    }
+
+    .alert strong {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    footer {
+      padding: 0.5rem 1.5rem 1.2rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .badge-soft {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      background: rgba(17, 24, 39, 0.8);
+      border: 1px solid rgba(165, 180, 252, 0.6);
+      color: var(--muted);
+      gap: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>
+        <span class="logo">RB</span>
+        My Recovery Buddy
+      </h1>
+      <small>Your pocket companion for meetings, notes, and recovery support.</small>
+    </div>
+    <div>
+      <span class="badge-soft">All data is stored only on this device.</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid-layout">
+      <!-- Left: Navigation -->
+      <aside class="card">
+        <h2>
+          Menu
+          <span class="badge">Tap to switch sections</span>
+        </h2>
+        <nav>
+          <button data-section="meeting-finder" class="active">
+            <span class="label">
+              <span class="icon">📍</span>
+              Meeting Finder
+            </span>
+            <span class="chevron">›</span>
+          </button>
+          <button data-section="my-meetings">
+            <span class="label">
+              <span class="icon">📝</span>
+              My Meetings & Notes
+            </span>
+            <span class="chevron">›</span>
+          </button>
+          <button data-section="phone-book">
+            <span class="label">
+              <span class="icon">📇</span>
+              Fellowship Phone Book
+            </span>
+            <span class="chevron">›</span>
+          </button>
+          <button data-section="help-now">
+            <span class="label">
+              <span class="icon">🆘</span>
+              Help & Crisis Support
+            </span>
+            <span class="chevron">›</span>
+          </button>
+          <button data-section="readings">
+            <span class="label">
+              <span class="icon">📚</span>
+              Readings & Literature
+            </span>
+            <span class="chevron">›</span>
+          </button>
+        </nav>
+      </aside>
+
+      <!-- Right: Meeting Finder -->
+      <section class="card section active" id="meeting-finder">
+        <h2>
+          <span>📍 Meeting Finder & Check-In</span>
+          <span class="badge">Location-aware tools</span>
+        </h2>
+        <p class="muted" style="margin-bottom:0.6rem;">
+          Use this to search for meetings and track that you showed up. Check in when you arrive,
+          check out when you leave, and your log will be saved on this device.
+        </p>
+
+        <div class="pill-row">
+          <span class="pill">💜 You’re not alone today</span>
+          <span class="pill">✨ Progress, not perfection</span>
+        </div>
+
+        <h3 style="font-size:0.95rem;margin:0.6rem 0 0.3rem;">Find meetings near you</h3>
+        <p class="muted" style="margin-bottom:0.4rem;">
+          Your browser may ask to use your location. If you prefer, you can type your city or ZIP instead.
+        </p>
+
+        <label for="meetingLocationInput">City, ZIP, or area (optional)</label>
+        <input
+          id="meetingLocationInput"
+          type="text"
+          placeholder="Example: Baltimore, MD 21201"
+        />
+
+        <div class="btn-row">
+          <button class="btn primary small" data-meeting-search="AA">AA near me</button>
+          <button class="btn small" data-meeting-search="NA">NA near me</button>
+          <button class="btn small" data-meeting-search="CA">CA near me</button>
+          <button class="btn ghost small" data-meeting-search="12-step">
+            All 12-Step near me
+          </button>
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:0.8rem 0;" />
+
+        <h3 style="font-size:0.95rem;margin:0.2rem 0 0.4rem;">Check in to this meeting</h3>
+
+        <label for="meetingProgram">Program</label>
+        <select id="meetingProgram">
+          <option value="AA">AA (Alcoholics Anonymous)</option>
+          <option value="NA">NA (Narcotics Anonymous)</option>
+          <option value="CA">CA (Cocaine Anonymous)</option>
+          <option value="Al-Anon">Al-Anon / Family group</option>
+          <option value="Other">Other 12-Step</option>
+        </select>
+
+        <label for="meetingName">Meeting name or location</label>
+        <input
+          id="meetingName"
+          type="text"
+          placeholder="Example: 'Downtown Noon Group – Main St Church'"
+        />
+
+        <div class="btn-row">
+          <button class="btn primary" id="checkInBtn">✅ Check in</button>
+          <button class="btn ghost" id="checkOutBtn">⏱️ Check out</button>
+        </div>
+
+        <p class="muted" id="currentMeetingStatus">
+          No active meeting yet. Check in when you arrive.
+        </p>
+      </section>
+
+      <!-- My Meetings -->
+      <section class="card section" id="my-meetings">
+        <h2>
+          <span>📝 My Meetings & Notes</span>
+          <span class="badge">Local history only</span>
+        </h2>
+        <p class="muted">
+          This is your personal meeting log. It lives only on this device using your browser’s local
+          storage. You can jot down notes, insights, and things you want to remember.
+        </p>
+
+        <div class="chip-row" style="margin:0.7rem 0 0.4rem;">
+          <span class="chip">Tip: jot down 1 thing you heard that you want to remember.</span>
+        </div>
+
+        <div id="meetingsEmptyState" class="muted" style="margin-top:0.5rem;">
+          No meetings logged yet. When you check in on the Meeting Finder tab, they’ll show up here.
+        </div>
+
+        <div class="meeting-list" id="meetingsList"></div>
+      </section>
+
+      <!-- Phone Book -->
+      <section class="card section" id="phone-book">
+        <h2>
+          <span>📇 Fellowship Phone Book</span>
+          <span class="badge">Numbers by program</span>
+        </h2>
+        <p class="muted">
+          Collect phone numbers from people you meet. You can tag them by program and add notes like
+          “sponsor,” “home group,” or “rides.”
+        </p>
+
+        <label for="contactName">Name</label>
+        <input id="contactName" type="text" placeholder="Example: 'Sam H.'" />
+
+        <label for="contactProgram">Program</label>
+        <select id="contactProgram">
+          <option value="AA">AA</option>
+          <option value="NA">NA</option>
+          <option value="CA">CA</option>
+          <option value="Al-Anon">Al-Anon</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <label for="contactPhone">Phone number</label>
+        <input id="contactPhone" type="tel" placeholder="555-123-4567" />
+
+        <label for="contactNotes">Notes (sponsor, rides, same home group, etc.)</label>
+        <textarea id="contactNotes" placeholder="Example: 'Offered to be a temporary sponsor.'"></textarea>
+
+        <div class="btn-row">
+          <button class="btn primary" id="saveContactBtn">📇 Save contact</button>
+        </div>
+
+        <label for="contactFilter">Filter by program</label>
+        <select id="contactFilter">
+          <option value="all">All programs</option>
+          <option value="AA">AA</option>
+          <option value="NA">NA</option>
+          <option value="CA">CA</option>
+          <option value="Al-Anon">Al-Anon</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <div id="contactsEmptyState" class="muted" style="margin-top:0.4rem;">
+          No contacts saved yet. Add numbers from your next meeting.
+        </div>
+        <div class="contacts-list" id="contactsList"></div>
+      </section>
+
+      <!-- Help & Crisis -->
+      <section class="card section" id="help-now">
+        <h2>
+          <span>🆘 Help & Crisis Support</span>
+          <span class="badge">Not a monitored service</span>
+        </h2>
+
+        <div class="alert">
+          <strong>In immediate danger?</strong>
+          Call 911 (or your local emergency number) right now. This app is not monitored and cannot
+          see your messages or location.
+        </div>
+
+        <h3 style="font-size:0.95rem;margin:0 0 0.4rem;">If you’re thinking about suicide or self-harm</h3>
+        <p class="muted" style="margin-bottom:0.4rem;">
+          In the United States, you can contact:
+        </p>
+
+        <div class="btn-row">
+          <a class="btn danger" href="tel:988">
+            ☎️ Call / text 988 (Suicide & Crisis Lifeline)
+          </a>
+          <a
+            class="btn accent"
+            href="https://988lifeline.org/chat"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            💬 Chat online with 988
+          </a>
+        </div>
+
+        <p class="muted" style="margin:0.3rem 0 0.8rem;">
+          If you’re outside the U.S., search “suicide hotline” plus your country or city for local
+          services.
+        </p>
+
+        <h3 style="font-size:0.95rem;margin:0 0 0.4rem;">If you want rehab or treatment help</h3>
+        <p class="muted" style="margin-bottom:0.4rem;">
+          These shortcuts help you find addiction treatment. They send you to official websites or a
+          Google search — they don’t send your info to anyone.
+        </p>
+
+        <label for="rehabLocationInput">City, ZIP, or area for rehab search</label>
+        <input
+          id="rehabLocationInput"
+          type="text"
+          placeholder="Example: Frederick, MD 21701"
+        />
+
+        <div class="btn-row">
+          <button class="btn primary" id="rehabNearMeBtn">🏥 Rehabs near me</button>
+          <button class="btn ghost" id="rehabByLocationBtn">🔎 Rehabs in typed location</button>
+        </div>
+
+        <p class="muted" style="margin-top:0.7rem;">
+          You can also search directly for treatment hotlines or specific rehabs you trust.
+          When in doubt, reach out to a sponsor, trusted friend, or professional.
+        </p>
+
+        <h3 style="font-size:0.95rem;margin:0.9rem 0 0.4rem;">Just need someone to talk to?</h3>
+        <p class="muted" style="margin-bottom:0.5rem;">
+          You might:
+        </p>
+        <ul class="muted" style="font-size:0.85rem;margin-top:0;">
+          <li>Call your sponsor or a friend from the Phone Book tab.</li>
+          <li>Call / text 988 to talk about any kind of emotional crisis.</li>
+          <li>Call 211 (in many U.S. areas) for local resources and support.</li>
+        </ul>
+
+        <div class="btn-row">
+          <a class="btn accent" href="tel:211">
+            ☎️ Call 211 (local resources)
+          </a>
+        </div>
+      </section>
+
+      <!-- Readings & Literature -->
+      <section class="card section" id="readings">
+        <h2>
+          <span>📚 Daily Readings & Literature</span>
+          <span class="badge">Links to official texts</span>
+        </h2>
+
+        <p class="muted" style="margin-bottom:0.7rem;">
+          These are simple daily prompts plus links to official 12-step literature so you can read
+          from the Big Book, Basic Text, and more without carrying all the books with you.
+        </p>
+
+        <div class="reading-card" id="dailyReading">
+          <h3>Today’s simple reading</h3>
+          <p id="dailyReadingText">
+            “One day at a time.”  
+            Today, focus on doing the next right thing. You don’t have to fix your whole life,
+            just this one moment in front of you.
+          </p>
+          <p class="muted" id="dailyReadingTagline" style="margin:0;">
+            Refresh the page for a different short reflection.
+          </p>
+        </div>
+
+        <h3 style="font-size:0.95rem;margin:0.8rem 0 0.4rem;">Official literature (external links)</h3>
+        <p class="muted" style="margin-bottom:0.4rem;">
+          These links go to official or widely-used sites that host or sell 12-step literature. They
+          may change over time, but this gives you a starting point:
+        </p>
+
+        <ul class="link-list">
+          <li>
+            📖 <strong>Big Book (AA)</strong> – visit the official AA website to view or purchase the Big Book and other AA literature.
+          </li>
+          <li>
+            📘 <strong>Basic Text (NA)</strong> – visit the official NA website for the Basic Text and NA literature.
+          </li>
+          <li>
+            📗 <strong>Other 12-step texts</strong> – search for your fellowship (CA, Al-Anon, etc.) plus “literature” to find official sites.
+          </li>
+        </ul>
+
+        <h3 style="font-size:0.95rem;margin:1rem 0 0.4rem;">Your own favorite passages</h3>
+        <p class="muted" style="margin-bottom:0.4rem;">
+          Use this box to paste your own favorite passages, prayers, or affirmations (that you’re
+          allowed to copy). They will stay on this device.
+        </p>
+
+        <label for="customReadings">Personal readings & prayers</label>
+        <textarea
+          id="customReadings"
+          placeholder="Add your favorite lines here. Example: a personal version of the serenity prayer, slogans that help you, or things your sponsor shared."
+        ></textarea>
+        <div class="btn-row">
+          <button class="btn primary" id="saveCustomReadingsBtn">💾 Save my readings</button>
+        </div>
+        <p class="muted" id="customReadingsStatus"></p>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    My Recovery Buddy is for support only and does not replace medical, mental health, or emergency services.
+    If you are in immediate danger, call 911 (or your local emergency number).
+  </footer>
+
+  <script>
+    // ----- Storage helpers -----
+    const storageKeys = {
+      meetings: "twelve_step_meetings_v1",
+      contacts: "twelve_step_contacts_v1",
+      customReadings: "twelve_step_custom_readings_v1",
+      activeMeeting: "twelve_step_active_meeting_v1",
+    };
+
+    function loadFromStorage(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        return JSON.parse(raw);
+      } catch (e) {
+        console.error("Storage load error", e);
+        return fallback;
+      }
+    }
+
+    function saveToStorage(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (e) {
+        console.error("Storage save error", e);
+      }
+    }
+
+    // ----- Navigation -----
+    const navButtons = document.querySelectorAll("nav button");
+    const sections = document.querySelectorAll(".section");
+
+    navButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const sectionId = btn.dataset.section;
+        navButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        sections.forEach((section) => {
+          section.classList.toggle("active", section.id === sectionId);
+        });
+      });
+    });
+
+    // ----- Daily reading randomizer -----
+    const readings = [
+      "“One day at a time.” Today, focus on doing the next right thing. You don’t have to fix your whole life—just this one moment.",
+      "“Easy does it.” You don’t have to force recovery. Show up, be honest, and let the process work on you.",
+      "“Keep coming back.” Even if you slipped, you can start again right now. The fact that you care enough to try matters.",
+      "“Progress, not perfection.” Recovery is about growing a little at a time, not becoming flawless.",
+      "“We don’t recover alone.” Reach out. Let other people walk with you. Isolation is where the disease wins.",
+      "“Just for today.” You can stay clean / sober today. Tomorrow hasn’t happened yet, and yesterday is already done.",
+    ];
+    const readingEl = document.getElementById("dailyReadingText");
+    if (readingEl) {
+      const index = Math.floor(Math.random() * readings.length);
+      readingEl.textContent = readings[index];
+    }
+
+    // ----- Meeting Finder / Check-in -----
+    const meetingLocationInput = document.getElementById("meetingLocationInput");
+    const checkInBtn = document.getElementById("checkInBtn");
+    const checkOutBtn = document.getElementById("checkOutBtn");
+    const currentMeetingStatus = document.getElementById("currentMeetingStatus");
+    const meetingProgramSelect = document.getElementById("meetingProgram");
+    const meetingNameInput = document.getElementById("meetingName");
+
+    let meetings = loadFromStorage(storageKeys.meetings, []);
+    let activeMeeting = loadFromStorage(storageKeys.activeMeeting, null);
+
+    function openMeetingSearch(fellowship) {
+      const textLocation = meetingLocationInput.value.trim();
+      const baseTerm =
+        fellowship === "12-step"
+          ? "12 step meetings"
+          : fellowship + " meetings";
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            const query = encodeURIComponent(baseTerm);
+            const url = `https://www.google.com/maps/search/${query}/@${latitude},${longitude},13z`;
+            window.open(url, "_blank");
+          },
+          () => {
+            const locQuery = textLocation ? " in " + textLocation : "";
+            const url = `https://www.google.com/maps/search/${encodeURIComponent(
+              baseTerm + locQuery
+            )}`;
+            window.open(url, "_blank");
+          }
+        );
+      } else {
+        const locQuery = textLocation ? " in " + textLocation : "";
+        const url = `https://www.google.com/maps/search/${encodeURIComponent(
+          baseTerm + locQuery
+        )}`;
+        window.open(url, "_blank");
+      }
+    }
+
+    document.querySelectorAll("[data-meeting-search]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const fellowship = btn.dataset.meetingSearch;
+        openMeetingSearch(fellowship);
+      });
+    });
+
+    function renderCurrentMeetingStatus() {
+      if (!currentMeetingStatus) return;
+      if (!activeMeeting) {
+        currentMeetingStatus.textContent =
+          "No active meeting yet. Check in when you arrive.";
+        return;
+      }
+      const started = new Date(activeMeeting.startTime).toLocaleString();
+      currentMeetingStatus.textContent = `Checked in to ${
+        activeMeeting.program
+      } at “${activeMeeting.name || "Unnamed meeting"}” on ${started}.`;
+    }
+
+    function renderMeetingsList() {
+      const list = document.getElementById("meetingsList");
+      const empty = document.getElementById("meetingsEmptyState");
+      if (!list || !empty) return;
+
+      list.innerHTML = "";
+      if (!meetings.length) {
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+
+      const sorted = [...meetings].sort(
+        (a, b) => new Date(b.startTime) - new Date(a.startTime)
+      );
+
+      sorted.forEach((m) => {
+        const item = document.createElement("div");
+        item.className = "meeting-item";
+
+        const header = document.createElement("div");
+        header.className = "meeting-header";
+
+        const title = document.createElement("div");
+        title.className = "meeting-title";
+        title.textContent = m.name || "(No meeting name)";
+        header.appendChild(title);
+
+        const tag = document.createElement("span");
+        tag.className =
+          "tag program-" +
+          (m.program === "AA" || m.program === "NA" || m.program === "CA"
+            ? m.program
+            : "");
+        tag.textContent = m.program;
+        header.appendChild(tag);
+
+        const details = document.createElement("div");
+        details.className = "small-stack";
+        const start = new Date(m.startTime).toLocaleString();
+        details.textContent = `Checked in: ${start}`;
+
+        if (m.endTime) {
+          const end = new Date(m.endTime).toLocaleString();
+          const endSpan = document.createElement("span");
+          endSpan.textContent = `• Checked out: ${end}`;
+          details.appendChild(endSpan);
+        } else {
+          const activeSpan = document.createElement("span");
+          activeSpan.textContent = "• Still active (no checkout logged)";
+          details.appendChild(activeSpan);
+        }
+
+        const noteSnippet = document.createElement("div");
+        noteSnippet.className = "note-snippet";
+        noteSnippet.textContent = m.notes
+          ? m.notes.length > 120
+            ? m.notes.slice(0, 120) + "..."
+            : m.notes
+          : "No notes yet.";
+
+        const noteTextarea = document.createElement("textarea");
+        noteTextarea.value = m.notes || "";
+        noteTextarea.placeholder =
+          "Notes from this meeting (what you heard, how you felt, anything you want to remember)…";
+
+        const saveNoteBtn = document.createElement("button");
+        saveNoteBtn.className = "btn small primary";
+        saveNoteBtn.textContent = "💾 Save notes";
+        saveNoteBtn.addEventListener("click", () => {
+          m.notes = noteTextarea.value.trim();
+          saveToStorage(storageKeys.meetings, meetings);
+          renderMeetingsList();
+        });
+
+        item.appendChild(header);
+        item.appendChild(details);
+        item.appendChild(noteSnippet);
+        item.appendChild(noteTextarea);
+        const btnRow = document.createElement("div");
+        btnRow.className = "btn-row";
+        btnRow.appendChild(saveNoteBtn);
+        item.appendChild(btnRow);
+
+        list.appendChild(item);
+      });
+    }
+
+    checkInBtn?.addEventListener("click", () => {
+      const program = meetingProgramSelect.value;
+      const name = meetingNameInput.value.trim();
+      const now = new Date();
+      const meeting = {
+        id: "m_" + now.getTime(),
+        program,
+        name,
+        startTime: now.toISOString(),
+        endTime: null,
+        notes: "",
+      };
+      meetings.push(meeting);
+      activeMeeting = meeting;
+      saveToStorage(storageKeys.meetings, meetings);
+      saveToStorage(storageKeys.activeMeeting, activeMeeting);
+      renderCurrentMeetingStatus();
+      renderMeetingsList();
+      alert("Checked in. You can add notes under My Meetings.");
+    });
+
+    checkOutBtn?.addEventListener("click", () => {
+      if (!activeMeeting) {
+        alert("No active meeting to check out of.");
+        return;
+      }
+      const now = new Date().toISOString();
+      const idx = meetings.findIndex((m) => m.id === activeMeeting.id);
+      if (idx !== -1) {
+        meetings[idx].endTime = now;
+      }
+      activeMeeting = null;
+      saveToStorage(storageKeys.meetings, meetings);
+      saveToStorage(storageKeys.activeMeeting, activeMeeting);
+      renderCurrentMeetingStatus();
+      renderMeetingsList();
+      alert("Checked out. Your meeting log has been updated.");
+    });
+
+    // ----- Contacts (Phone Book) -----
+    const contactNameInput = document.getElementById("contactName");
+    const contactProgramSelect = document.getElementById("contactProgram");
+    const contactPhoneInput = document.getElementById("contactPhone");
+    const contactNotesInput = document.getElementById("contactNotes");
+    const saveContactBtn = document.getElementById("saveContactBtn");
+    const contactFilter = document.getElementById("contactFilter");
+    const contactsList = document.getElementById("contactsList");
+    const contactsEmptyState = document.getElementById("contactsEmptyState");
+
+    let contacts = loadFromStorage(storageKeys.contacts, []);
+
+    function renderContacts() {
+      if (!contactsList || !contactsEmptyState) return;
+
+      contactsList.innerHTML = "";
+      const filter = contactFilter.value;
+      const filtered =
+        filter === "all"
+          ? contacts
+          : contacts.filter((c) => c.program === filter);
+
+      if (!filtered.length) {
+        contactsEmptyState.style.display = "block";
+        return;
+      }
+      contactsEmptyState.style.display = "none";
+
+      const sorted = [...filtered].sort((a, b) =>
+        (a.name || "").localeCompare(b.name || "")
+      );
+
+      sorted.forEach((c) => {
+        const item = document.createElement("div");
+        item.className = "contact-item";
+
+        const header = document.createElement("div");
+        header.className = "contact-header";
+
+        const nameEl = document.createElement("div");
+        nameEl.textContent = c.name || "(No name)";
+        nameEl.style.fontWeight = "600";
+        nameEl.style.fontSize = "0.9rem";
+        header.appendChild(nameEl);
+
+        const rightSide = document.createElement("div");
+        rightSide.className = "small-stack";
+        rightSide.textContent = c.program;
+        header.appendChild(rightSide);
+
+        const phoneEl = document.createElement("div");
+        phoneEl.className = "small-stack";
+        phoneEl.textContent = c.phone || "No phone saved";
+
+        const notesEl = document.createElement("div");
+        notesEl.className = "note-snippet";
+        notesEl.textContent = c.notes
+          ? c.notes.length > 120
+            ? c.notes.slice(0, 120) + "..."
+            : c.notes
+          : "No notes.";
+
+        item.appendChild(header);
+        item.appendChild(phoneEl);
+        item.appendChild(notesEl);
+        contactsList.appendChild(item);
+      });
+    }
+
+    saveContactBtn?.addEventListener("click", () => {
+      const name = contactNameInput.value.trim();
+      const program = contactProgramSelect.value;
+      const phone = contactPhoneInput.value.trim();
+      const notes = contactNotesInput.value.trim();
+
+      if (!name && !phone) {
+        alert("Please enter at least a name or a phone number.");
+        return;
+      }
+
+      const now = new Date().toISOString();
+      contacts.push({
+        id: "c_" + now,
+        name,
+        program,
+        phone,
+        notes,
+      });
+      saveToStorage(storageKeys.contacts, contacts);
+
+      contactNameInput.value = "";
+      contactPhoneInput.value = "";
+      contactNotesInput.value = "";
+
+      renderContacts();
+    });
+
+    contactFilter?.addEventListener("change", renderContacts);
+
+    // ----- Rehab search -----
+    const rehabLocationInput = document.getElementById("rehabLocationInput");
+    const rehabNearMeBtn = document.getElementById("rehabNearMeBtn");
+    const rehabByLocationBtn = document.getElementById("rehabByLocationBtn");
+
+    function openRehabSearchNearMe() {
+      const baseTerm = "substance use treatment center";
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            const url = `https://www.google.com/maps/search/${encodeURIComponent(
+              baseTerm
+            )}/@${latitude},${longitude},13z`;
+            window.open(url, "_blank");
+          },
+          () => {
+            const url = `https://www.google.com/maps/search/${encodeURIComponent(
+              baseTerm + " near me"
+            )}`;
+            window.open(url, "_blank");
+          }
+        );
+      } else {
+        const url = `https://www.google.com/maps/search/${encodeURIComponent(
+          baseTerm + " near me"
+        )}`;
+        window.open(url, "_blank");
+      }
+    }
+
+    function openRehabSearchByLocation() {
+      const textLocation = rehabLocationInput.value.trim();
+      if (!textLocation) {
+        alert("Please type a city, ZIP, or area first.");
+        return;
+      }
+      const baseTerm = "substance use treatment center";
+      const url = `https://www.google.com/maps/search/${encodeURIComponent(
+        baseTerm + " in " + textLocation
+      )}`;
+      window.open(url, "_blank");
+    }
+
+    rehabNearMeBtn?.addEventListener("click", openRehabSearchNearMe);
+    rehabByLocationBtn?.addEventListener("click", openRehabSearchByLocation);
+
+    // ----- Custom readings -----
+    const customReadingsTextarea = document.getElementById("customReadings");
+    const saveCustomReadingsBtn = document.getElementById(
+      "saveCustomReadingsBtn"
+    );
+    const customReadingsStatus = document.getElementById(
+      "customReadingsStatus"
+    );
+
+    const customReadings = loadFromStorage(storageKeys.customReadings, "");
+    if (customReadingsTextarea) {
+      customReadingsTextarea.value = customReadings;
+    }
+
+    saveCustomReadingsBtn?.addEventListener("click", () => {
+      const text = customReadingsTextarea.value;
+      saveToStorage(storageKeys.customReadings, text);
+      if (customReadingsStatus) {
+        customReadingsStatus.textContent =
+          "Personal readings saved on this device.";
+        setTimeout(() => {
+          customReadingsStatus.textContent = "";
+        }, 2500);
+      }
+    });
+
+    // ----- Initial render -----
+    renderCurrentMeetingStatus();
+    renderMeetingsList();
+    renderContacts();
+  </script>
+</body>
+</html>
